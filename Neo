@@ -1,0 +1,911 @@
+trigger TrgOpportunity on Opportunity (before insert, before update, after insert, after update) {
+
+if(trigger.isBefore){
+
+}
+
+if(trigger.isAfter){
+
+if(trigger.isInsert){
+
+TrgOpportunityHndlr.crtRelMisDosRec(trigger.new);
+
+}
+
+}
+
+}
+
+Code
+
+trigger TrgOpportunity on Opportunity (before insert, before update, after insert, after update) {
+
+if(trigger.isBefore){
+
+}
+
+if(trigger.isAfter){
+
+if(trigger.isInsert){
+
+list<Mission__c> missionRecords = new list<Mission__c>();
+
+list<Planification__c> dossierRecords = new list<Planification__c>();
+
+for(Opportunity rec:trigger.new){
+
+list<String> multiSelectList = new list<String>();
+
+if(rec.levier_CS__c !=null){
+
+for(String a:rec.levier_CS__c.split(';')){
+
+multiSelectList.add(rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_Cee__c !=null){
+
+for(String a:rec.levier_Cee__c.split(';')){
+
+multiSelectList.add(rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_at__c !=null){
+
+for(String a:rec.levier_at__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_inno__c !=null){
+
+for(String a:rec.levier_inno__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_fiscaux__c !=null){
+
+for(String a:rec.levier_fiscaux__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_tf__c !=null){
+
+for(String a:rec.levier_tf__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+RecordType misATRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%AT%' LIMIT 1];
+
+RecordType misCEERecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%CEE%' LIMIT 1];
+
+RecordType misFiscaliteRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Fiscalité%' LIMIT 1];
+
+RecordType misInnoRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Inno%' LIMIT 1];
+
+RecordType misStandardRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Standard%' LIMIT 1];
+
+for(String multiSelectValue:multiSelectList){
+
+Mission__c missionRec = new Mission__c(Name = multiSelectValue, Opportunite__c = rec.Id);
+
+if(missionRec.Name.contains('AT')){
+
+missionRec.RecordTypeId = misATRecordTypeId.Id;
+
+}else if(missionRec.Name.contains('CEE')){
+
+missionRec.RecordTypeId = misCEERecordTypeId.Id;
+
+}else if(missionRec.Name.contains('Fiscalité')){
+
+missionRec.RecordTypeId = misFiscaliteRecordTypeId.Id;
+
+}else if(missionRec.Name.contains('Inno')){
+
+missionRec.RecordTypeId = misInnoRecordTypeId.Id;
+
+}else{
+
+missionRec.RecordTypeId = misStandardRecordTypeId.Id;
+
+}
+
+missionRecords.add(missionRec);
+
+}
+
+}
+
+Database.insert(missionRecords, true);
+
+System.debug(missionRecords);
+
+RecordType planATRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%AT%' LIMIT 1];
+
+RecordType planCEERecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%CEE%' LIMIT 1];
+
+RecordType planFiscaliteRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Fiscalité%' LIMIT 1];
+
+RecordType planInnoRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Inno%' LIMIT 1];
+
+RecordType planStandardRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Standard%' LIMIT 1];
+
+for(Mission__c mRec:missionRecords){
+
+Planification__c dossierRec = new Planification__c(Name = mRec.name,
+
+Opportunite__c = mRec.Opportunite__c,
+
+Mission__c = mRec.Id,
+
+DatePlanifFacture__c = Date.today(),
+
+Levier__c = mRec.Levier__c);
+
+if(dossierRec.Name.contains('AT')){
+
+dossierRec.RecordTypeId = planATRecordTypeId.Id;
+
+}else if(dossierRec.Name.contains('CEE')){
+
+dossierRec.RecordTypeId = planCEERecordTypeId.Id;
+
+}else if(dossierRec.Name.contains('Fiscalité')){
+
+dossierRec.RecordTypeId = planFiscaliteRecordTypeId.Id;
+
+}else if(dossierRec.Name.contains('Inno')){
+
+dossierRec.RecordTypeId = planInnoRecordTypeId.Id;
+
+}else{
+
+dossierRec.RecordTypeId = planStandardRecordTypeId.Id;
+
+}
+
+dossierRecords.add(dossierRec);
+
+}
+
+Database.insert(dossierRecords, true);
+
+System.debug(dossierRecords);
+
+}
+
+}
+
+}
+
+Sukru
+
+trigger TrgOpportunity on Opportunity (before insert, before update, after insert, after update) {
+
+if(trigger.isAfter){
+
+if(trigger.isInsert){
+
+TrgOpportunityHndlr.crtRelMisDosRec(trigger.new);
+
+}
+
+}
+
+}
+
+---------------------------------------------------------------------------------------------
+
+public class TrgOpportunityHndlr {
+
+public static void crtRelMisDosRec(list<Opportunity> oppTrgRecList){
+
+list<Mission__c> missionRecords = new list<Mission__c>();
+
+list<Planification__c> dossierRecords = new list<Planification__c>();
+
+for(Opportunity rec:oppTrgRecList){
+
+list<String> multiSelectList = new list<String>();
+
+if(rec.levier_CS__c !=null){
+
+for(String a:rec.levier_CS__c.split(';')){
+
+multiSelectList.add(rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.Levier_Fiscaux__c !=null){
+
+for(String a:rec.Levier_Fiscaux__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+RecordType misFiscaliteRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Fisc%' LIMIT 1];
+
+RecordType misStandardRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Standard%' LIMIT 1];
+
+if(multiSelectList.size() != 0){
+
+for(String multiSelectValue:multiSelectList){
+
+if(multiSelectValue.contains('CS') || multiSelectValue.contains('FISC')){
+
+Mission__c missionRec = new Mission__c(Name = multiSelectValue, Opportunite__c = rec.Id, Compte__c = rec.AccountId);
+
+if(missionRec.Name.contains('FISC')){
+
+missionRec.RecordTypeId = misFiscaliteRecordTypeId.Id;
+
+}else{
+
+missionRec.RecordTypeId = misStandardRecordTypeId.Id;
+
+}
+
+missionRecords.add(missionRec);
+
+}
+
+}
+
+}
+
+}
+
+if(missionRecords.size() != 0){
+
+Database.insert(missionRecords, true);
+
+RecordType planFiscaliteRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Fisc%' LIMIT 1];
+
+RecordType planStandardRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Standard%' LIMIT 1];
+
+for(Mission__c mRec:missionRecords){
+
+if(mRec.Name.contains('CS') || mRec.Name.contains('FISC')){
+
+Planification__c dossierRec = new Planification__c(Name = mRec.name,
+
+Opportunite__c = mRec.Opportunite__c,
+
+Mission__c = mRec.Id,
+
+DatePlanifFacture__c = Date.today(),
+
+Levier__c = mRec.Levier__c);
+
+if(dossierRec.Name.contains('FISC')){
+
+dossierRec.RecordTypeId = planFiscaliteRecordTypeId.Id;
+
+}else{
+
+dossierRec.RecordTypeId = planStandardRecordTypeId.Id;
+
+}
+
+dossierRecords.add(dossierRec);
+
+}
+
+}
+
+Database.insert(dossierRecords, true);
+
+}
+
+}
+
+}
+
+//End
+
+-----------------------------------------------------------------------
+
+@isTest
+
+public class TrgOpportunityTest {
+
+@isTest
+
+public static void Test(){
+
+Opportunity opp1 = new Opportunity (Name='Test1',..., levier_CS__c='CS - AAD');
+
+Opportunity opp2 = new Opportunity (Name='Test2',..., levier_CS__c='FISC - ABS');
+
+insert opp1;
+
+insert opp2;
+
+Mission_c missionRecTest1 = [SELECT Id, Name FROM Missionc WHERE Opportunite_c = opp1.Id];
+
+Mission_c missionRecTest2 = [SELECT Id, Name FROM Missionc WHERE Opportunite_c = opp2.Id];
+
+Planification_c dossierRecTest1 = [SELECT Id, Name, Levierc FROM Planificationc WHERE Mission_c = missionRecTest1.Id];
+
+Planification_c dossierRecTest2 = [SELECT Id, Name, Levierc FROM Planificationc WHERE Mission_c = missionRecTest2.Id];
+
+system.assertEquals('Test1 CS - AAD', missionRecTest1.Name);
+
+system.assertEquals('Test2 FISC - ABS', missionRecTest2.Name);
+
+system.assertEquals('Test1 CS - AAD', dossierRecTest1.Name);
+
+system.assertEquals('Test2 FISC - ABS' dossierRecTest2.Name);
+
+-------------------
+
+@isTest
+
+public class TrgOpportunityTest {
+
+@isTest
+
+public static void Test(){
+
+Account acc1 = new Account(Name='Account Test',Phone ='123456',Type='Prospect', Industry='Enterprise');
+
+Opportunity opp1 = new Opportunity (Name='Test22', StageName='RDV EFFECTUE', Closedate=system.today(), levier_CS__c='CS - AAD');
+
+//Opportunity opp2 = new Opportunity (Name='Test3', StageName='RDV EFFECTUE', Closedate=system.today(), Levier_Fiscaux__c='FISC - ABS');
+
+Test.startTest();
+
+insert acc1;
+
+insert opp1;
+
+Test.stopTest();
+
+//insert opp2;
+
+Opportunity oppTest = [SELECT Id, Name FROM Opportunity WHERE AccountId =: acc1.Id];
+
+Mission__c missionRecTest1 = [SELECT Id, Name FROM Mission__c WHERE Opportunite__c =: opp1.Id];
+
+//Mission__c missionRecTest2 = [SELECT Id, Name FROM Mission__c WHERE Opportunite__c =: opp2.Id];
+
+Planification__c dossierRecTest1 = [SELECT Id, Name, Levier__c FROM Planification__c WHERE Mission__c =: missionRecTest1.Id];
+
+//Planification__c dossierRecTest2 = [SELECT Id, Name, Levier__c FROM Planification__c WHERE Mission__c =: missionRecTest2.Id];
+
+system.assertEquals('Account Test - CS', oppTest.Name);
+
+system.assertEquals('Test22 CS - AAD', missionRecTest1.Name);
+
+//system.assertEquals('Test3 FISC - ABS', missionRecTest2.Name);
+
+system.assertEquals('Test22 CS - AAD', dossierRecTest1.Name);
+
+//system.assertEquals('Test3 FISC - ABS', dossierRecTest2.Name);
+
+}
+
+}
+
+public class TrgOpportunityHndlr {
+
+public static void crtRelMisDosRec(list<Opportunity> oppTrgRecList){
+
+list<Mission__c> missionRecords = new list<Mission__c>();
+
+list<Planification__c> dossierRecords = new list<Planification__c>();
+
+for(Opportunity rec:oppTrgRecList){
+
+list<String> multiSelectList = new list<String>();
+
+if(rec.levier_CS__c !=null){
+
+for(String a:rec.levier_CS__c.split(';')){
+
+multiSelectList.add(rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_Cee__c !=null){
+
+for(String a:rec.levier_Cee__c.split(';')){
+
+multiSelectList.add(rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_at__c !=null){
+
+for(String a:rec.levier_at__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_inno__c !=null){
+
+for(String a:rec.levier_inno__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.Levier_Fiscaux__c !=null){
+
+for(String a:rec.Levier_Fiscaux__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.levier_tf__c !=null){
+
+for(String a:rec.levier_tf__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+RecordType misATRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%AT%' LIMIT 1];
+
+RecordType misCEERecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%CEE%' LIMIT 1];
+
+RecordType misFiscaliteRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Fisc%' LIMIT 1];
+
+RecordType misInnoRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Inno%' LIMIT 1];
+
+RecordType misStandardRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Standard%' LIMIT 1];
+
+if(multiSelectList.size() != 0){
+
+for(String multiSelectValue:multiSelectList){
+
+if(multiSelectValue.contains('CS') || multiSelectValue.contains('FISC')){
+
+Mission__c missionRec = new Mission__c(Name = multiSelectValue, Opportunite__c = rec.Id, Compte__c = rec.AccountId);
+
+if(missionRec.Name.contains('AT')){
+
+missionRec.RecordTypeId = misATRecordTypeId.Id;
+
+}else if(missionRec.Name.contains('CEE')){
+
+missionRec.RecordTypeId = misCEERecordTypeId.Id;
+
+}else if(missionRec.Name.contains('FISC')){
+
+missionRec.RecordTypeId = misFiscaliteRecordTypeId.Id;
+
+}else if(missionRec.Name.contains('Inno')){
+
+missionRec.RecordTypeId = misInnoRecordTypeId.Id;
+
+}else{
+
+missionRec.RecordTypeId = misStandardRecordTypeId.Id;
+
+}
+
+missionRecords.add(missionRec);
+
+}
+
+}
+
+}
+
+}
+
+if(missionRecords.size() != 0){
+
+Database.insert(missionRecords, true);
+
+RecordType planATRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%AT%' LIMIT 1];
+
+RecordType planCEERecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%CEE%' LIMIT 1];
+
+RecordType planFiscaliteRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Fisc%' LIMIT 1];
+
+RecordType planInnoRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Inno%' LIMIT 1];
+
+RecordType planStandardRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Standard%' LIMIT 1];
+
+for(Mission__c mRec:missionRecords){
+
+if(mRec.Name.contains('CS') || mRec.Name.contains('FISC')){
+
+Planification__c dossierRec = new Planification__c(Name = mRec.name,
+
+Opportunite__c = mRec.Opportunite__c,
+
+Mission__c = mRec.Id,
+
+DatePlanifFacture__c = Date.today(),
+
+Levier__c = mRec.Levier__c);
+
+if(dossierRec.Name.contains('AT')){
+
+dossierRec.RecordTypeId = planATRecordTypeId.Id;
+
+}else if(dossierRec.Name.contains('CEE')){
+
+dossierRec.RecordTypeId = planCEERecordTypeId.Id;
+
+}else if(dossierRec.Name.contains('FISC')){
+
+dossierRec.RecordTypeId = planFiscaliteRecordTypeId.Id;
+
+}else if(dossierRec.Name.contains('Inno')){
+
+dossierRec.RecordTypeId = planInnoRecordTypeId.Id;
+
+}else{
+
+dossierRec.RecordTypeId = planStandardRecordTypeId.Id;
+
+}
+
+dossierRecords.add(dossierRec);
+
+}
+
+}
+
+Database.insert(dossierRecords, true);
+
+}
+
+}
+
+}//End
+
+trigger TrgOpportunity on Opportunity (after insert, after update) {
+
+if(trigger.isAfter && trigger.isInsert){
+
+TrgOpportunityHndlr.crtRelMisDosRec(trigger.new);
+
+}
+
+if(trigger.isAfter && trigger.isUpdate){
+
+TrgOpportunityHndlr.crtRelMisDosRec(trigger.new);
+
+}
+
+}
+
+---------------------------------------------------------------------------6
+
+public class TrgOpportunityHndlr {
+
+public static Boolean key = true;
+
+public static void crtRelMisDosRec(list<Opportunity> oppTrgRecList){
+
+if(key){
+
+key = false;
+
+list<Mission__c> missionRecords = new list<Mission__c>();
+
+list<Planification__c> dossierRecords = new list<Planification__c>();
+
+List<Mission__c> misDel = [SELECT id, Name FROM Mission__c WHERE Opportunite__c=:oppTrgRecList[0].id];
+
+for(Opportunity rec:oppTrgRecList){
+
+list<String> multiSelectList = new list<String>();
+
+if(rec.levier_CS__c !=null){
+
+for(String a:rec.levier_CS__c.split(';')){
+
+multiSelectList.add(rec.Name + ' ' + a);
+
+}
+
+}
+
+if(rec.Levier_Fiscaux__c !=null){
+
+for(String a:rec.Levier_Fiscaux__c.split(';')){
+
+multiSelectList.add( rec.Name + ' ' + a);
+
+}
+
+}
+
+RecordType misFiscaliteRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Fisc%' LIMIT 1];
+
+RecordType misStandardRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Mission__c'
+
+AND Name LIKE '%Standard%' LIMIT 1];
+
+if(multiSelectList.size() != 0){
+
+set<String> newSet1 = new set<String>(multiSelectList);
+
+set<String> newSet2 = new set<String>();
+
+for(Mission__c misDelList:misDel) {
+
+newset2.add(misDelList.name);}
+
+newSet1.RemoveAll(newSet2);
+
+for(String multiSelectValue:newSet1){
+
+if(multiSelectValue.contains('CS') || multiSelectValue.contains('FISC')){
+
+Mission__c missionRec = new Mission__c(Name = multiSelectValue, Opportunite__c = rec.Id, Compte__c = rec.AccountId);
+
+if(missionRec.Name.contains('FISC')){
+
+missionRec.RecordTypeId = misFiscaliteRecordTypeId.Id;
+
+}else{
+
+missionRec.RecordTypeId = misStandardRecordTypeId.Id;
+
+}
+
+missionRecords.add(missionRec);
+
+}
+
+}
+
+}
+
+}
+
+if(missionRecords.size() != 0){
+
+Database.insert(missionRecords, true);
+
+RecordType planFiscaliteRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Fisc%' LIMIT 1];
+
+RecordType planStandardRecordTypeId = [SELECT Id FROM RecordType
+
+WHERE sObjectType = 'Planification__c'
+
+AND Name LIKE '%Standard%' LIMIT 1];
+
+for(Mission__c mRec:missionRecords){
+
+if(mRec.Name.contains('CS') || mRec.Name.contains('FISC')){
+
+Planification__c dossierRec = new Planification__c(Name = mRec.name,
+
+Opportunite__c = mRec.Opportunite__c,
+
+Mission__c = mRec.Id,
+
+DatePlanifFacture__c = Date.today()+180,
+
+Levier__c = mRec.Levier__c,
+
+TauxFacturation__c=mRec.TauxFacturation__c,
+
+Compte__c=mRec.Opportunite__r.AccountId,
+
+ConsultantUser__c=mRec.Consultant__c,
+
+ProchaineAction__c='Casablanca',
+
+Statut__c='Docs à récupérer', RecordTypeId='0122p000000RcmbAAC' );
+
+/* if(dossierRec.Name.contains('FISC')){
+
+dossierRec.RecordTypeId = planFiscaliteRecordTypeId.Id;
+
+}else{
+
+dossierRec.RecordTypeId = planStandardRecordTypeId.Id;
+
+}*/
+
+dossierRecords.add(dossierRec);
+
+}
+
+}
+
+Database.insert(dossierRecords, true);
+
+}
+
+}
+
+}
+
+}
+
+//End
+
+--------------------------------------------------------------------------------------------------------66
+
+@isTest
+
+public class TrgOpportunityTest {
+
+@isTest
+
+public static void Test(){
+
+Opportunity opp1 = new Opportunity (Name='Test2', StageName='RDV EFFECTUE', Closedate=system.today(), levier_CS__c='CS - AAD');
+
+//Opportunity opp2 = new Opportunity (Name='Test3', StageName='RDV EFFECTUE', Closedate=system.today(), Levier_Fiscaux__c='FISC - ABS');
+
+insert opp1;
+
+//insert opp2;
+
+Mission__c missionRecTest1 = [SELECT Id, Name FROM Mission__c WHERE Opportunite__c =: opp1.Id];
+
+//Mission__c missionRecTest2 = [SELECT Id, Name FROM Mission__c WHERE Opportunite__c =: opp2.Id];
+
+Planification__c dossierRecTest1 = [SELECT Id, Name, Levier__c FROM Planification__c WHERE Mission__c =: missionRecTest1.Id];
+
+//Planification__c dossierRecTest2 = [SELECT Id, Name, Levier__c FROM Planification__c WHERE Mission__c =: missionRecTest2.Id];
+
+system.assertEquals('Test2 CS - AAD', missionRecTest1.Name);
+
+//system.assertEquals('Test3 FISC - ABS', missionRecTest2.Name);
+
+system.assertEquals('Test2 CS - AAD', dossierRecTest1.Name);
+
+//system.assertEquals('Test3 FISC - ABS', dossierRecTest2.Name);
+
+}
+
+}
