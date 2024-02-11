@@ -16,7 +16,7 @@ TrgOpportunityHndlr.crtRelMisDosRec(trigger.new);
 
 }
 
-Code
+-------------------------------------------------------------------------------------------------
 
 trigger TrgOpportunity on Opportunity (before insert, before update, after insert, after update) {
 
@@ -909,3 +909,5 @@ system.assertEquals('Test2 CS - AAD', dossierRecTest1.Name);
 }
 
 }
+
+---------------
