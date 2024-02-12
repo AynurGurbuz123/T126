@@ -420,7 +420,7 @@ system.assertEquals('Test1 CS - AAD', dossierRecTest1.Name);
 
 system.assertEquals('Test2 FISC - ABS' dossierRecTest2.Name);
 
--------------------
+-----------------------
 
 @isTest
 
