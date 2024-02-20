@@ -61,3 +61,10 @@ public with sharing class WarehouseCalloutService implements Queueable, Database
    }
 
 }
+
+-------------------------------
+In Anonymous Window, use enqueueJob.
+-------------------------------------------
+
+System.enqueueJob(New WarehouseCalloutService());
+
