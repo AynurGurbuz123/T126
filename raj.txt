@@ -1,12 +1,284 @@
-rajcik
+force-app/main/default/lwc/displayOpportunityCard/displayOpportunityCard.html<template>
 
-xx
 
-xx
-xx
+    <template lwc:if={account.data}>
+        <!-- <lightning-formatted-text value={name}></lightning-formatted-text> -->
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_1-of-3">
+                <div class="slds-box slds-theme_default slds-m-around_small" onclick={handleClickAgenceEmploi}>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_3-of-4">
+                            <p><span class="slds-text-heading_medium">Agence Emploi</span></p>
+                            <p><lightning-formatted-text value={statutAgenceEmploi}></lightning-formatted-text></p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-4">
+                            <lightning-icon icon-name={iconAgenceEmploi} alternative-text="Statut" title="Statut du client pour agence emploi" variant={couleurAgenceEmploi} class="slds-float_right">
+                            </lightning-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-size_1-of-3">
+                <div class="slds-box slds-theme_default slds-m-around_small" onclick={handleClickTalentManagement}>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_3-of-4">
+                            <p><span class="slds-text-heading_medium">Talent Management</span></p>
+                            <p><lightning-formatted-text value={statutTalentManagement}></lightning-formatted-text></p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-4">
+                            <lightning-icon icon-name={iconTalentManagement} alternative-text="Statut" title="Statut du client pour Talent Management" variant={couleurTalentManagement} class="slds-float_right">
+                            </lightning-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-size_1-of-3">
+                <div class="slds-box slds-theme_default slds-m-around_small" onclick={handleClickAccompagnementEtFormation}>
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_3-of-4">
+                            <p><span class="slds-text-heading_medium">Accompagnement et Formation</span></p>
+                            <p><lightning-formatted-text value={statutAccompagnementFormation}></lightning-formatted-text></p>
+                        </div>
+                        <div class="slds-col slds-size_1-of-4">
+                            <lightning-icon icon-name={iconAccompagnementFormation} alternative-text="Statut" title="Statut du client pour Accompagnement et Formation" variant={couleurAccompagnementFormation} class="slds-float_right">
+                            </lightning-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </template>
+    <template lwc:if={account.error}>
+        {account.error}
+    </template>
+    
+</template>
 
-xx
-xx
 
-xx
-xx
+----------------------------------------------------------------------------------------
+force-app/main/default/lwc/displayOpportunityCard/displayOpportunityCard.js
+
+import { LightningElement, api, wire } from 'lwc';
+import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+
+import displayOpportunityStatus from "c/displayOpportunityStatus";
+
+import STATUT_AGENCE_EMPLOI from '@salesforce/schema/Account.StatutDuCompteAgenceEmploi__c'
+import STATUT_ACCOMPAGNEMENT_FORMATION from '@salesforce/schema/Account.StatutDuCompteAccompEtForm__c'
+import STATUT_TALENT_MANAGEMENT from '@salesforce/schema/Account.StatutDuCompteTalentManagement__c'
+import SEGMENTATION_AGENCE_EMPLOI from '@salesforce/schema/Account.SegmentationAgenceEmploi__c'
+import SEGMENTATION_ACCOMPAGNEMENT_FORMATION from '@salesforce/schema/Account.SegmentationAccompEtForm__c'
+import SEGMENTATION_TALENT_MANAGEMENT from '@salesforce/schema/Account.SegmentationTalentManagement__c'
+
+const FIELDS = [STATUT_AGENCE_EMPLOI, STATUT_ACCOMPAGNEMENT_FORMATION, STATUT_TALENT_MANAGEMENT, SEGMENTATION_ACCOMPAGNEMENT_FORMATION, SEGMENTATION_AGENCE_EMPLOI, SEGMENTATION_TALENT_MANAGEMENT, "Account.Name"];
+
+export default class DisplayOpportunityCard extends LightningElement {
+    // pour transmettre le record ID au LWC
+    @api recordId;
+
+    @wire(getRecord, { recordId: "$recordId", fields : FIELDS }) account;
+
+
+    get statutAgenceEmploi () {
+        return getFieldValue(this.account.data, STATUT_AGENCE_EMPLOI);
+    }
+
+    get iconAgenceEmploi (){
+        var value = getFieldValue(this.account.data, STATUT_AGENCE_EMPLOI);
+        var icon = "";
+        if(value === "Client"){
+            icon = "utility:money";
+        }
+        else if(value === "Prospect"){
+            icon = "utility:money";
+        }
+        else {
+            icon = "utility:light_bulb";
+        }
+        return icon;
+    }
+
+    get couleurAgenceEmploi (){
+        var value = getFieldValue(this.account.data, STATUT_AGENCE_EMPLOI);
+        var color = "";
+        if(value === "Client"){
+            color = "success";
+        }
+        else if(value === "Prospect"){
+            color = "warning";
+        }
+        else {
+            color = "warning";
+        }
+        return color;
+    }
+
+    get iconAccompagnementFormation (){
+        var value = getFieldValue(this.account.data, STATUT_ACCOMPAGNEMENT_FORMATION);
+        var icon = "";
+        if(value === "Client"){
+            icon = "utility:money";
+        }
+        else if(value === "Prospect"){
+            icon = "utility:money";
+        }
+        else {
+            icon = "utility:light_bulb";
+        }
+        return icon;
+    }
+
+    get couleurAccompagnementFormation (){
+        var value = getFieldValue(this.account.data, STATUT_ACCOMPAGNEMENT_FORMATION);
+        var color = "";
+        if(value === "Client"){
+            color = "success";
+        }
+        else if(value === "Prospect"){
+            color = "warning";
+        }
+        else {
+            color = "warning";
+        }
+        return color;
+    }
+
+    get iconTalentManagement (){
+        var value = getFieldValue(this.account.data, STATUT_TALENT_MANAGEMENT);
+        var icon = "";
+        if(value === "Client"){
+            icon = "utility:money";
+        }
+        else if(value === "Prospect"){
+            icon = "utility:money";
+        }
+        else {
+            icon = "utility:light_bulb";
+        }
+        return icon;
+    }
+
+    get couleurTalentManagement (){
+        var value = getFieldValue(this.account.data, STATUT_TALENT_MANAGEMENT);
+        var color = "";
+        if(value === "Client"){
+            color = "success";
+        }
+        else if(value === "Prospect"){
+            color = "warning";
+        }
+        else {
+            color = "warning";
+        }
+        return color;
+    }
+
+    get statutAccompagnementFormation () {
+        return getFieldValue(this.account.data, STATUT_ACCOMPAGNEMENT_FORMATION);
+    }
+
+    get statutTalentManagement () {
+        return getFieldValue(this.account.data, STATUT_TALENT_MANAGEMENT);
+    }
+
+    get name () {
+        return this.account.data.fields.Name.value;
+    } 
+   
+
+    //Initialisation des variables que l'on veut pouvoir afficher
+    // statutAgenceEmploi = STATUT_AGENCE_EMPLOI;
+    // statutAccompagnementFormation = STATUT_ACCOMPAGNEMENT_FORMATION;
+    // statutTalentManagement = STATUT_TALENT_MANAGEMENT;
+
+    //On appel la fenetre modale pour Agence Emploi
+    async handleClickAgenceEmploi() {
+        const result = await displayOpportunityStatus.open({
+            size: 'small',
+            title: this.account.data.fields.Name.value + ' - Agence Emploi', 
+            famille: 'Agence Emploi',
+            accountId: this.recordId,
+            familyStatus: getFieldValue(this.account.data, STATUT_AGENCE_EMPLOI),
+            familySegmentation: getFieldValue(this.account.data, SEGMENTATION_AGENCE_EMPLOI),
+            description: 'Information complémentaire sur le compte du point de vue d\'Agence Emploi',
+            content: 'Information complémentaire sur le compte du point de vue d\'Agence Emploi',
+        });
+        console.log(result);
+    }
+    
+    //On appel la fenetre modale pour Formation
+    async handleClickAccompagnementEtFormation() {
+        const result = await displayOpportunityStatus.open({
+            size: 'small',
+            title: this.account.data.fields.Name.value + ' - Accompagnement et Formation',
+            famille: 'Accompagnement et Formation',
+            accountId: this.recordId,
+            familyStatus: getFieldValue(this.account.data, STATUT_ACCOMPAGNEMENT_FORMATION),
+            familySegmentation: getFieldValue(this.account.data, SEGMENTATION_ACCOMPAGNEMENT_FORMATION),
+            description: 'Information complémentaire sur le compte du point de vue d\'Accompagnement et Formation',
+            content: 'Information complémentaire sur le compte du point de vue d\'Accompagnement et Formation',
+        });
+        console.log(result);
+    }  
+
+    //On appel la fenetre modale pour Agence Emploi
+    async handleClickTalentManagement() {
+        const result = await displayOpportunityStatus.open({
+            size: 'small',
+            title: this.account.data.fields.Name.value + ' - Talent Management',
+            famille: 'Talent Management',
+            accountId: this.recordId,
+            familyStatus: getFieldValue(this.account.data, SEGMENTATION_TALENT_MANAGEMENT),
+            familySegmentation: getFieldValue(this.account.data, SEGMENTATION_TALENT_MANAGEMENT),
+            description: 'Information complémentaire sur le compte du point de vue de Talent Management',
+            content: 'Information complémentaire sur le compte du point de vue de Talent Management',
+        });
+        console.log(result);
+    }  
+
+   
+}
+
+
+--------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+force-app/main/default/lwc/insertIFrame/insertIFrame.html
+
+
+<template>
+    <div>
+        <iframe src={url} frameborder="0"></iframe>
+    </div>
+</template>
+
+------------------------------------------------------------------------------
+
+force-app/main/default/lwc/insertIFrame/insertIFrame.js
+
+import { LightningElement, api } from 'lwc';
+
+export default class InsertIFrame extends LightningElement {
+    @api url;
+}
+
+-----------------------------------------------------------------------------
+
+force-app/main/default/lwc/insertIFrame/insertIFrame.js-meta.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage">
+          <property name="url" type="String" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
+
+-----------------------------------------------------------------------
