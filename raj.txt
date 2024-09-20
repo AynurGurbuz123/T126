@@ -1,8 +1,7 @@
 xx
 xx
 xx
-xx
-hi
+
 
 force-app/main/default/lwc/displayOpportunityCard/displayOpportunityCard.html<template>
 
